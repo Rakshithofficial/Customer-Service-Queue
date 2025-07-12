@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customer Service Queue Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 50px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* BIG BUBBLE background */
+    .bubble {
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle at center, #93c5fd 0%, transparent 70%);
+      filter: blur(150px);
+      z-index: 0;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 50px;
+      background: linear-gradient(90deg, #3b82f6, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    header p {
+      font-size: 20px;
+      color: #555;
+      font-weight: 500;
+      margin-top: 10px;
+    }
+
+    .container {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+      position: relative;
+      z-index: 1;
+    }
+
+    .box {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      padding: 30px;
+      flex: 1;
+      transition: transform 0.2s ease;
+    }
+
+    .box:hover {
+      transform: translateY(-3px);
+    }
+
+    .box h2 {
+      margin-top: 0;
+      font-size: 24px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    input, select {
+      padding: 12px 14px;
+      font-size: 16px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 12px 18px;
+      font-size: 15px;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background: #2563eb;
+      transform: scale(1.05);
+    }
+
+    .request {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 15px;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .summary p {
+      margin: 10px 0;
+    }
+
+    .history {
+      margin-top: 20px;
+    }
+
+    .history h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+
+    .history ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BIG BUBBLE -->
+  <div class="bubble"></div>
+
+  <header>
+    <h1>Customer Service Queue</h1>
+    <p>Track and manage your customer requests with ease</p>
+  </header>
+
+  <div class="container">
+    <div class="box">
+      <h2>Manage Requests</h2>
+      <input id="requestInput" type="text" placeholder="Enter request">
+      <select id="priorityInput">
+        <option>Normal</option>
+        <option>High</option>
+        <option>Low</option>
+      </select>
+      <button onclick="enqueue()">Enqueue</button>
+      <button onclick="dequeue()">Dequeue</button>
+      <button onclick="clearQueue()">Clear</button>
+
+      <h3>Queue</h3>
+      <div id="queueList"></div>
+    </div>
+
+    <div class="box">
+      <h2>Queue Summary</h2>
+      <p>Total Requests: <span id="total">0</span></p>
+      <p>Next Request: <span id="next">None</span></p>
+      <p>Last Processed: <span id="last">None</span></p>
+      <div class="history">
+        <h3>History</h3>
+        <ul id="historyList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let queue = [];
+    let history = [];
+
+    function update() {
+      document.getElementById('queueList').innerHTML = queue.map(q => `
+        <div class="request">${q.text} (${q.priority})</div>
+      `).join('');
+
+      document.getElementById('total').innerText = queue.length;
+      document.getElementById('next').innerText = queue[0]?.text || 'None';
+
+      document.getElementById('historyList').innerHTML = history.slice(-5).reverse().map(h => `
+        <li>${h}</li>
+      `).join('');
+    }
+
+    function enqueue() {
+      let text = document.getElementById('requestInput').value.trim();
+      let priority = document.getElementById('priorityInput').value;
+      if (text) {
+        queue.push({text, priority});
+        document.getElementById('requestInput').value = '';
+        update();
+      }
+    }
+
+    function dequeue() {
+      if (queue.length) {
+        let removed = queue.shift();
+        history.push(`Processed ${removed.text}`);
+        document.getElementById('last').innerText = removed.text;
+        update();
+      }
+    }
+
+    function clearQueue() {
+      queue = [];
+      update();
+    }
+  </script>
+
+</body>
+</html>
